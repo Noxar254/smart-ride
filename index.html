@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Ride - City Bus Booking</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-bus"></i> Smart Ride</h1>
+            <p>City Bus Booking System</p>
+            
+            <!-- Weather, Clock and Traffic Info Widgets -->
+            <div class="info-widgets">
+                <!-- Always visible time and date -->
+                <div id="persistent-time-widget" class="persistent-widget">
+                    <div class="time-content">
+                        <p class="current-time">--:--:--</p>
+                        <p class="current-date">--- --, ----</p>
+                    </div>
+                </div>
+                
+                <!-- Always visible weather widget -->
+                <div id="persistent-weather-widget" class="persistent-widget">
+                    <div class="weather-content">
+                        <div class="weather-icon"><i class="fas fa-spinner fa-spin"></i></div>
+                        <div class="weather-details">
+                            <p class="weather-temp">--°C</p>
+                            <p class="weather-desc">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Traffic button that triggers popup notifications -->
+                <div id="traffic-widget" class="widget">
+                    <button id="traffic-btn" class="widget-btn" title="Traffic Updates">
+                        <i class="fas fa-traffic-light"></i>
+                    </button>
+                </div>
+                
+                <!-- Route planning button -->
+                <div id="route-widget" class="widget">
+                    <button id="route-planner-btn" class="widget-btn" title="Plan Route">
+                        <i class="fas fa-route"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="bus-container">
+            <!-- Driver section -->
+            <div class="driver-section">
+                <div class="driver-row">
+                    <div class="seat passenger-seat" id="seat-1">1</div>
+                    <div class="seat passenger-seat" id="seat-2">2</div>
+                    <div class="aisle"></div>
+                    <div class="driver-seat">
+                        <i class="fas fa-steering-wheel"></i>
+                        <span>Driver</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main passenger section -->
+            <div class="passenger-section">
+                <!-- Front row with 4 seats -->
+                <div class="seat-row">
+                    <div class="seat passenger-seat" id="seat-3">3</div>
+                    <div class="seat passenger-seat" id="seat-4">4</div>
+                    <div class="aisle"></div>
+                    <div class="seat passenger-seat" id="seat-5">5</div>
+                    <div class="seat passenger-seat" id="seat-6">6</div>
+                </div>
+                
+                <!-- Second row with left door -->
+                <div class="seat-row">
+                    <div class="door">
+                        <i class="fas fa-door-open"></i>
+                    </div>
+                    <div class="empty-space"></div>
+                    <div class="aisle"></div>
+                    <div class="seat passenger-seat" id="seat-7">7</div>
+                    <div class="seat passenger-seat" id="seat-8">8</div>
+                </div>
+                
+                <!-- Remaining rows -->
+                <div class="seat-row">
+                    <div class="seat passenger-seat" id="seat-9">9</div>
+                    <div class="seat passenger-seat" id="seat-10">10</div>
+                    <div class="aisle"></div>
+                    <div class="seat passenger-seat" id="seat-11">11</div>
+                    <div class="seat passenger-seat" id="seat-12">12</div>
+                </div>
+                
+                <div class="seat-row">
+                    <div class="seat passenger-seat" id="seat-13">13</div>
+                    <div class="seat passenger-seat" id="seat-14">14</div>
+                    <div class="aisle"></div>
+                    <div class="seat passenger-seat" id="seat-15">15</div>
+                    <div class="seat passenger-seat" id="seat-16">16</div>
+                </div>
+                
+                <div class="seat-row">
+                    <div class="seat passenger-seat" id="seat-17">17</div>
+                    <div class="seat passenger-seat" id="seat-18">18</div>
+                    <div class="aisle"></div>
+                    <div class="seat passenger-seat" id="seat-19">19</div>
+                    <div class="seat passenger-seat" id="seat-20">20</div>
+                </div>
+                
+                <div class="seat-row">
+                    <div class="seat passenger-seat" id="seat-21">21</div>
+                    <div class="seat passenger-seat" id="seat-22">22</div>
+                    <div class="aisle"></div>
+                    <div class="seat passenger-seat" id="seat-23">23</div>
+                    <div class="seat passenger-seat" id="seat-24">24</div>
+                </div>
+                
+                <div class="seat-row">
+                    <div class="seat passenger-seat" id="seat-25">25</div>
+                    <div class="seat passenger-seat" id="seat-26">26</div>
+                    <div class="aisle"></div>
+                    <div class="seat passenger-seat" id="seat-27">27</div>
+                    <div class="seat passenger-seat" id="seat-28">28</div>
+                </div>
+                
+                <!-- Back row with 5 seats -->
+                <div class="seat-row back-row">
+                    <div class="seat passenger-seat" id="seat-29">29</div>
+                    <div class="seat passenger-seat" id="seat-30">30</div>
+                    <div class="seat passenger-seat" id="seat-31">31</div>
+                    <div class="seat passenger-seat" id="seat-32">32</div>
+                    <div class="seat passenger-seat" id="seat-33">33</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="seat-sample available"></div>
+                    <span>Available</span>
+                </div>
+                <div class="legend-item">
+                    <div class="seat-sample selected"></div>
+                    <span>Selected</span>
+                </div>
+                <div class="legend-item">
+                    <div class="seat-sample booked"></div>
+                    <span>Booked</span>
+                </div>
+            </div>
+            <div class="buttons-container">
+                <button id="book-btn" class="btn" disabled>Book Now</button>
+                <button id="withdraw-btn" class="btn">Withdraw Booking</button>
+                <button id="track-btn" class="btn">Track Bus Location</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="booking-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Book Your Seat</h2>
+            <form id="booking-form">
+                <div class="form-group">
+                    <label for="name">Name/Initials:</label>
+                    <input type="text" id="name" placeholder="Enter your name or initials" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number:</label>
+                    <input type="tel" id="phone" placeholder="Enter your phone number" required>
+                </div>
+                <div class="form-group">
+                    <label for="journey-date">Journey Date:</label>
+                    <input type="date" id="journey-date" required>
+                </div>
+                <div class="form-group location-group">
+                    <label>Your Location:</label>
+                    <div class="location-controls">
+                        <button type="button" id="detect-location" class="btn location-btn">
+                            <i class="fas fa-map-marker-alt"></i> Detect My Location
+                        </button>
+                        <span id="location-status">Not detected</span>
+                    </div>
+                    <input type="hidden" id="user-latitude" name="latitude">
+                    <input type="hidden" id="user-longitude" name="longitude">
+                    <textarea id="location-details" placeholder="Provide additional details about your location (landmarks, building name, etc.)" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Selected Seats:</label>
+                    <div id="selected-seats-list"></div>
+                </div>
+                <p class="payment-note">Payment will be collected after the drive.</p>
+                <button type="submit" class="btn">Confirm Booking</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Withdraw Booking Modal -->
+    <div id="withdraw-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Withdraw Your Booking</h2>
+            <p>Select seats to withdraw booking:</p>
+            <div id="booked-seats-container" class="booked-seats-grid"></div>
+            <form id="withdraw-form">
+                <div class="form-group">
+                    <label for="booking-phone">Phone number used for booking:</label>
+                    <input type="tel" id="booking-phone" placeholder="Enter your phone number" required>
+                </div>
+                <button type="submit" class="btn">Confirm Withdrawal</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tracking Modal -->
+    <div id="tracking-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Track Your Bus</h2>
+            <div id="map"></div>
+            <div class="bus-info">
+                <p><strong>Bus ID:</strong> <span id="bus-id">SR-1234</span></p>
+                <p><strong>Current Location:</strong> <span id="current-location">Loading...</span></p>
+                <p><strong>Estimated Arrival:</strong> <span id="eta">Calculating...</span></p>
+                
+                <!-- Driver Control Panel -->
+                <div id="driver-controls" class="driver-controls">
+                    <h3>Driver Controls</h3>
+                    <div class="toggle-container">
+                        <button id="driver-auth-btn" class="btn tracking-btn">Driver Login</button>
+                        <button id="start-tracking-btn" class="btn tracking-btn" disabled>Start Live Tracking</button>
+                        <button id="stop-tracking-btn" class="btn tracking-btn" disabled>Stop Tracking</button>
+                    </div>
+                    <div id="tracking-status" class="tracking-status">Tracking inactive</div>
+                    <div id="driver-status" class="driver-status">Driver authentication required</div>
+                    <p class="driver-note">Only authorized drivers and conductors can start or stop tracking.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Driver Authentication Modal -->
+    <div id="driver-auth-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Driver Authentication</h2>
+            <p>Please enter your driver credentials to access tracking controls.</p>
+            <form id="driver-auth-form">
+                <div class="form-group">
+                    <label for="driver-username">Driver Username:</label>
+                    <input type="text" id="driver-username" placeholder="Enter your username" required>
+                </div>
+                <div class="form-group">
+                    <label for="driver-password">Password:</label>
+                    <input type="password" id="driver-password" placeholder="Enter your password" required>
+                </div>
+                <div id="auth-error" class="auth-error"></div>
+                <button type="submit" class="btn">Authenticate</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Route Planner Modal -->
+    <div id="route-planner-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Plan Your Route</h2>
+            <p>Powered by Waze</p>
+            <div class="form-group">
+                <label for="route-from">Starting Point:</label>
+                <div class="route-input-container">
+                    <input type="text" id="route-from" placeholder="Enter starting location">
+                    <button type="button" id="detect-start-location" class="btn mini-btn">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="route-to">Destination:</label>
+                <div class="route-input-container">
+                    <input type="text" id="route-to" placeholder="Enter destination">
+                    <button type="button" id="select-bus-stop" class="btn mini-btn">
+                        <i class="fas fa-bus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="departure-time">Departure Time:</label>
+                <select id="departure-time">
+                    <option value="now">Leave Now</option>
+                    <option value="15">In 15 minutes</option>
+                    <option value="30">In 30 minutes</option>
+                    <option value="60">In 1 hour</option>
+                    <option value="custom">Custom time</option>
+                </select>
+                <div id="custom-time-container" style="display: none; margin-top: 10px;">
+                    <input type="time" id="custom-time" value="12:00">
+                    <input type="date" id="custom-date">
+                </div>
+            </div>
+            <div id="route-results">
+                <div class="route-loading" style="display: none;">
+                    <div class="loading-icon"></div>
+                    <p>Finding the best route...</p>
+                </div>
+                <div class="route-options" style="display: none;">
+                </div>
+            </div>
+            <div class="buttons-container center-buttons">
+                <button type="button" id="find-route-btn" class="btn">Find Route</button>
+                <button type="button" id="open-waze-btn" class="btn" disabled>Open in Waze</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
