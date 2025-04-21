@@ -7,6 +7,21 @@ import requests
 import threading
 import random
 import math
+from pyngrok import ngrok
+
+# Start ngrok tunnel function
+def start_ngrok():
+    try:
+        # Set up a tunnel to the Flask server
+        public_url = ngrok.connect(5000)
+        print(f"\n\n* SMART RIDE MOBILE ACCESS *")
+        print(f"* Access your system from your phone at: {public_url}")
+        print(f"* Share this link with others to let them access your system")
+        print(f"* This link will change each time you restart the server\n")
+        return public_url
+    except Exception as e:
+        print(f"Ngrok error: {e}")
+        return None
 
 app = Flask(__name__, static_folder='.')
 
@@ -1119,4 +1134,12 @@ def get_cardinal_direction(heading):
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
+    
+    # Start ngrok tunnel for mobile access
+    public_url = start_ngrok()
+    
+    # Generate sample data if none exists
+    if not staff:
+        generate_sample_staff()
+    
     app.run(host='0.0.0.0', port=port, debug=True)
