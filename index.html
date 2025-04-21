@@ -54,11 +54,11 @@
         <div class="bus-container">
             <!-- Driver section -->
             <div class="driver-section">
-                <div class="driver-row">
+                <div class="seat-row">
                     <div class="seat passenger-seat" id="seat-1">1</div>
                     <div class="seat passenger-seat" id="seat-2">2</div>
                     <div class="aisle"></div>
-                    <div class="driver-seat">
+                    <div class="seat driver-seat">
                         <i class="fas fa-steering-wheel"></i>
                         <span>Driver</span>
                     </div>
@@ -76,18 +76,18 @@
                     <div class="seat passenger-seat" id="seat-6">6</div>
                 </div>
                 
-                <!-- Second row with left door -->
-                <div class="seat-row">
+                <!-- Second row with door aligned horizontally with seats -->
+                <div class="seat-row with-door">
                     <div class="door">
                         <i class="fas fa-door-open"></i>
+                        <span>Door</span>
                     </div>
-                    <div class="empty-space"></div>
                     <div class="aisle"></div>
                     <div class="seat passenger-seat" id="seat-7">7</div>
                     <div class="seat passenger-seat" id="seat-8">8</div>
                 </div>
                 
-                <!-- Remaining rows -->
+                <!-- Remaining rows - arranged in order with consistent spacing -->
                 <div class="seat-row">
                     <div class="seat passenger-seat" id="seat-9">9</div>
                     <div class="seat passenger-seat" id="seat-10">10</div>
@@ -128,14 +128,17 @@
                     <div class="seat passenger-seat" id="seat-28">28</div>
                 </div>
                 
-                <!-- Back row with 5 seats -->
-                <div class="seat-row back-row">
+                <!-- Back row with strictly aligned seats -->
+                <div class="back-row">
                     <div class="seat passenger-seat" id="seat-29">29</div>
                     <div class="seat passenger-seat" id="seat-30">30</div>
+                    <div class="aisle"></div>
                     <div class="seat passenger-seat" id="seat-31">31</div>
                     <div class="seat passenger-seat" id="seat-32">32</div>
                     <div class="seat passenger-seat" id="seat-33">33</div>
                 </div>
+                
+                <!-- Seat 32 has been incorporated into the back row -->
             </div>
         </div>
 
@@ -154,10 +157,10 @@
                     <span>Booked</span>
                 </div>
             </div>
-            <div class="buttons-container">
-                <button id="book-btn" class="btn" disabled>Book Now</button>
-                <button id="withdraw-btn" class="btn">Withdraw Booking</button>
-                <button id="track-btn" class="btn">Track Bus Location</button>
+            <div class="action-button-container">
+                <button id="book-btn" class="action-button" disabled><i class="fas fa-ticket-alt"></i>Book Now</button>
+                <button id="withdraw-btn" class="action-button"><i class="fas fa-undo"></i>Withdraw</button>
+                <button id="track-btn" class="action-button"><i class="fas fa-map-marker-alt"></i>Track Bus</button>
             </div>
         </div>
     </div>
@@ -226,9 +229,19 @@
             <h2>Track Your Bus</h2>
             <div id="map"></div>
             <div class="bus-info">
-                <p><strong>Bus ID:</strong> <span id="bus-id">SR-1234</span></p>
+                <p><strong>Bus ID:</strong> <span id="bus-id">KDQ 144F</span></p>
                 <p><strong>Current Location:</strong> <span id="current-location">Loading...</span></p>
                 <p><strong>Estimated Arrival:</strong> <span id="eta">Calculating...</span></p>
+                
+                <!-- Add bus info container for real-time information -->
+                <div id="bus-info-container" class="real-time-info-panel"></div>
+                
+                <!-- Add passenger count display to the tracking modal -->
+                <div class="passenger-counter">
+                    <i class="fas fa-users"></i>
+                    <span id="passenger-count">0</span>
+                    <span class="passenger-label">Waiting Passengers</span>
+                </div>
                 
                 <!-- Driver Control Panel -->
                 <div id="driver-controls" class="driver-controls">

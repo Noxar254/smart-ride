@@ -27,10 +27,19 @@
   --transition-slow: 0.5s ease-in-out;
 }
 
+html {
+  scroll-behavior: smooth;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) var(--gray-light);
 }
 
 body {
@@ -39,6 +48,10 @@ body {
   color: var(--dark-color);
   line-height: 1.6;
   overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+  height: 100%;
+  position: relative;
 }
 
 /* Scroll Animations */
@@ -100,6 +113,9 @@ body {
   margin: 0 auto;
   padding: 20px;
   animation: fadeInUp var(--transition-normal);
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 header {
@@ -164,6 +180,9 @@ header p {
   overflow: hidden;
   transition: transform var(--transition-normal), box-shadow var(--transition-normal);
   transform-origin: center;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .bus-container:hover {
@@ -185,8 +204,6 @@ header p {
 /* Driver section */
 .driver-section {
   margin-bottom: 15px;
-  display: flex;
-  justify-content: flex-start;
   padding: 8px;
   border-bottom: 1px solid #e2e8f0;
   max-width: 90%;
@@ -203,32 +220,37 @@ header p {
 
 .driver-seat {
   background-color: #e2e8f0;
-  width: 60px;
-  height: 60px;
+  width: 40px;  /* Match the passenger seat width */
+  height: 40px; /* Match the passenger seat height */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 8px; /* More rounded */
-  margin-right: 10px;
+  border-radius: 8px;
   color: var(--dark-color);
   font-size: 0.7rem;
   border: 2px solid var(--gray-color);
   transition: all var(--transition-normal);
   position: relative;
   overflow: hidden;
+  margin: 0 6px; /* Match passenger seat margin */
 }
 
 .driver-seat:hover {
-  transform: scale(1.05);
+  transform: translateY(-5px); /* Match passenger seat hover effect */
   border-color: var(--primary-color);
   box-shadow: 0 0 15px rgba(26, 115, 232, 0.3);
 }
 
 .driver-seat i {
-  font-size: 1.2rem;
-  margin-bottom: 2px;
+  font-size: 1rem;
+  margin-bottom: 1px;
   animation: spin 10s linear infinite;
+}
+
+.driver-seat span {
+  font-size: 0.6rem;
+  font-weight: 600;
 }
 
 /* Bus seats layout */
@@ -239,13 +261,49 @@ header p {
   max-width: 90%;
   margin: 0 auto;
   animation: fadeInUp var(--transition-normal) 0.2s;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .seat-row {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(2, 40px) 20px repeat(2, 40px);
+  justify-content: center;
   align-items: center;
   transition: transform var(--transition-fast);
+  margin: 0 auto;
+  gap: 12px;
+}
+
+.seat-row.with-door {
+  display: grid;
+  grid-template-columns: repeat(2, 40px) 20px repeat(2, 40px);
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 0 auto;
+}
+
+.seat-row.with-door .door {
+  grid-column: 1 / span 2;
+  grid-row: 1;
+  justify-self: center;
+}
+
+.seat-row.with-door .aisle {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.seat-row.with-door #seat-7 {
+  grid-column: 4;
+  grid-row: 1;
+}
+
+.seat-row.with-door #seat-8 {
+  grid-column: 5;
+  grid-row: 1;
 }
 
 .seat-row:hover {
@@ -264,11 +322,12 @@ header p {
   font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-fast);
-  margin: 0 6px;
+  margin: 0;
   font-size: 0.8rem;
   position: relative;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
+  order: 0; /* Added for explicit ordering */
 }
 
 .seat::before {
@@ -316,6 +375,7 @@ header p {
   width: 20px;
   height: 40px; /* Match seat height */
   background: linear-gradient(to bottom, transparent, rgba(226, 232, 240, 0.3), transparent);
+  grid-column: 3;
 }
 
 .door {
@@ -344,12 +404,45 @@ header p {
   animation: float 3s ease-in-out infinite;
 }
 
+/* Back row styling for horizontal alignment of seats 29-33 */
 .back-row {
-  justify-content: space-around;
-  margin-top: 8px;
-  padding-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(5, 40px);
+  justify-content: center;
+  align-items: center;
+  margin-top: 15px;
+  padding-top: 10px;
   border-top: 2px solid #e2e8f0;
   transition: transform var(--transition-normal);
+  gap: 12px;
+}
+
+/* Specific positioning for back seats */
+#seat-29, #seat-30, #seat-31, #seat-32, #seat-33 {
+  grid-row: 1;
+  align-self: center;
+}
+
+#seat-29 {
+  grid-column: 1;
+}
+
+#seat-30 {
+  grid-column: 2;
+}
+
+#seat-31 {
+  grid-column: 3;
+  position: relative;
+  z-index: 2;
+}
+
+#seat-32 {
+  grid-column: 4;
+}
+
+#seat-33 {
+  grid-column: 5;
 }
 
 .back-row:hover {
@@ -368,6 +461,9 @@ header p {
   flex-wrap: wrap;
   transition: transform var(--transition-normal), box-shadow var(--transition-normal);
   animation: fadeInUp var(--transition-normal) 0.4s;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .controls:hover {
@@ -488,7 +584,6 @@ header p {
 
 #withdraw-btn:hover {
   background: var(--warning-color);
-  box-shadow: 0 10px 20px rgba(245, 158, 11, 0.2);
 }
 
 #track-btn {
@@ -497,7 +592,6 @@ header p {
 
 #track-btn:hover {
   background: #5e17eb;
-  box-shadow: 0 10px 20px rgba(94, 23, 235, 0.2);
 }
 
 /* Modal styles */
@@ -528,6 +622,9 @@ header p {
   transform: translateY(20px);
   opacity: 0;
   transition: all var(--transition-normal);
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .modal-active .modal-content {
@@ -568,7 +665,7 @@ header p {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: var(--dark-color);
+  color: var (--dark-color);
   transition: color var(--transition-fast);
 }
 
@@ -635,18 +732,133 @@ header p {
 
 /* Map styles */
 #map {
-  height: 400px;
+  height: 450px; /* Increased height for better visibility */
   width: 100%;
-  border-radius: 12px; /* More rounded */
+  border-radius: 12px;
   margin-bottom: 20px;
   box-shadow: var(--shadow-md);
   border: 3px solid var(--primary-light);
   transition: all var(--transition-normal);
+  position: relative;
+  z-index: 10; /* Ensure map is properly layered */
+  overflow: hidden; /* Ensures content stays within rounded corners */
 }
 
 #map:hover {
   box-shadow: var(--shadow-lg);
   border-color: var(--primary-color);
+  transform: scale(1.01); /* Subtle scale effect on hover */
+}
+
+/* Enhanced map accuracy styles */
+.map-accuracy-high {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 1px var(--secondary-color), var(--shadow-md);
+}
+
+.map-accuracy-medium {
+  border-color: var(--warning-color);
+  box-shadow: 0 0 0 1px var(--warning-color), var(--shadow-md);
+}
+
+.map-accuracy-low {
+  border-color: var(--danger-color);
+  box-shadow: 0 0 0 1px var(--danger-color), var(--shadow-md);
+}
+
+.map-accuracy-indicator {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  box-shadow: var(--shadow-md);
+  z-index: 15;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.map-accuracy-indicator.high {
+  color: var(--secondary-color);
+  background-color: var(--secondary-light);
+}
+
+.map-accuracy-indicator.medium {
+  color: var(--warning-color);
+  background-color: var(--warning-light);
+}
+
+.map-accuracy-indicator.low {
+  color: var(--danger-color);
+  background-color: var(--danger-light);
+}
+
+.map-accuracy-indicator i {
+  margin-right: 5px;
+}
+
+.map-controls {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  z-index: 15;
+  display: flex;
+  gap: 10px;
+}
+
+.map-control-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--dark-color);
+}
+
+.map-control-btn:hover {
+  background: var(--primary-light);
+  color: var(--primary-color);
+  transform: translateY(-3px);
+}
+
+.map-control-btn:active {
+  transform: translateY(-1px);
+}
+
+.map-satellite-toggle {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 15;
+  background: white;
+  border-radius: 20px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.map-satellite-toggle:hover {
+  background: var(--primary-light);
+  color: var(--primary-color);
+}
+
+.map-satellite-toggle i {
+  margin-right: 5px;
 }
 
 .bus-info {
@@ -657,6 +869,9 @@ header p {
   transition: all var(--transition-normal);
   box-shadow: var(--shadow-sm);
   animation: fadeInUp var(--transition-normal);
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .bus-info:hover {
@@ -790,7 +1005,7 @@ header p {
   border-radius: 8px; /* More rounded */
   margin-bottom: 15px;
   text-align: center;
-  color: var(--primary-color);
+  color: var (--primary-color);
   transition: all var(--transition-normal);
   position: relative;
   overflow: hidden;
@@ -968,7 +1183,7 @@ header p {
 }
 
 #location-status.warning {
-  color: var(--warning-color);
+  color: var (--warning-color);
   font-weight: 500;
   background-color: var(--warning-light);
 }
@@ -1012,7 +1227,7 @@ header p {
 
 #location-details:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--primary-light);
+  box-shadow: 0 0 0 3px var (--primary-light);
 }
 
 .payment-note {
@@ -1645,4 +1860,1021 @@ header p {
 #persistent-weather-widget .weather-icon i {
     /* Removed animation: spin 2s linear infinite; */
     /* No animation for weather icon as requested */
+}
+
+/* Route planner real-time styles */
+.route-data-indicator {
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+.route-data-indicator.live {
+    background: rgba(25, 135, 84, 0.1);
+    color: #198754;
+    border-left: 3px solid #198754;
+}
+
+.route-data-indicator.simulated {
+    background: rgba(255, 193, 7, 0.1);
+    color: #fd7e14;
+    border-left: 3px solid #fd7e14;
+}
+
+.route-data-indicator .live-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #198754;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+    animation: pulse 1.5s infinite;
+}
+
+.route-data-indicator i {
+    margin-right: 8px;
+}
+
+.route-data-indicator .indicator-text {
+    font-weight: 500;
+    margin-right: 8px;
+}
+
+.route-data-indicator .update-time {
+    margin-left: auto;
+    opacity: 0.8;
+    font-size: 0.8rem;
+}
+
+/* Route options enhanced styling */
+.route-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.route-option {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.route-option:hover {
+    background: #f1f3f5;
+    transform: translateY(-2px);
+}
+
+.route-option.selected {
+    border-color: var(--primary-color);
+    background: rgba(26, 115, 232, 0.05);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.route-option-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.route-time {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.route-distance {
+    color: #666;
+    font-weight: 500;
+}
+
+.route-details {
+    display: flex;
+    align-items: center;
+    color: #555;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.route-traffic-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.traffic-low {
+    background-color: #198754;
+}
+
+.traffic-medium {
+    background-color: #fd7e14;
+}
+
+.traffic-high {
+    background-color: #dc3545;
+}
+
+.route-arrival {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #555;
+    padding-top: 8px;
+    border-top: 1px solid #eee;
+}
+
+.route-eta-label {
+    font-weight: 500;
+    margin-right: 5px;
+}
+
+.route-eta {
+    color: #333;
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+.route-arrival-time {
+    color: #666;
+    margin-left: auto;
+}
+
+/* Animation for updated values */
+.updated-value {
+    animation: highlight-update 2s ease;
+}
+
+@keyframes highlight-update {
+    0% {
+        background-color: rgba(25, 135, 84, 0.2);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* Animation for pulse update */
+.pulse-update {
+    animation: pulse-animation 2s ease;
+}
+
+@keyframes pulse-animation {
+    0% {
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(25, 135, 84, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
+    }
+}
+
+/* Route loading indicator improvements */
+.route-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+}
+
+.loading-icon {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Location permission dialog styles */
+.permission-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.permission-dialog {
+    background-color: white;
+    width: 90%;
+    max-width: 450px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    padding: 0;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all var(--transition-normal);
+    overflow: hidden;
+}
+
+.permission-dialog.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.permission-dialog-header {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.permission-dialog-header.warning {
+    background-color: var(--warning-light);
+    color: var(--warning-color);
+}
+
+.permission-dialog-header i {
+    font-size: 24px;
+}
+
+.permission-dialog-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.permission-dialog-body {
+    padding: 25px;
+    color: var(--dark-color);
+}
+
+.permission-dialog-body p {
+    margin: 0 0 12px 0;
+    line-height: 1.5;
+}
+
+.permission-dialog-icon {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.permission-dialog-icon i {
+    font-size: 48px;
+    color: var(--primary-color);
+    animation: pulse 2s infinite;
+}
+
+.permission-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #eee;
+}
+
+.permission-cancel {
+    background: var(--gray-light);
+    color: var(--dark-color);
+}
+
+.permission-allow {
+    background: var(--primary-color);
+}
+
+.permission-retry {
+    background: var(--warning-color);
+}
+
+.browser-instructions {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.browser-instructions ul {
+    margin: 10px 0 0 0;
+    padding-left: 20px;
+}
+
+.browser-instructions li {
+    margin-bottom: 8px;
+}
+
+/* Improve scrollbar appearance */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--gray-light);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 10px;
+  transition: background var(--transition-normal);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+  opacity: 0.8;
+}
+
+/* Remove any legacy side scrolling issues */
+.container, 
+.bus-container,
+.passenger-section,
+.controls,
+.modal-content,
+.bus-info,
+.route-options,
+.persistent-widget,
+.route-data-indicator {
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Mobile-first responsive optimizations */
+@media (max-width: 991px) {
+  header h1 {
+    font-size: 2.2rem;
+  }
+  
+  header p {
+    font-size: 1rem;
+  }
+  
+  .bus-container {
+    padding: 25px 15px;
+  }
+  
+  .passenger-section {
+    max-width: 100%;
+  }
+  
+  .route-arrival {
+    flex-wrap: wrap;
+  }
+  
+  .route-arrival-time {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 5px;
+  }
+  
+  .route-input-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .mini-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .widget-expanded {
+    min-width: 260px;
+    left: 0;
+    transform: translateX(0) scale(0.8);
+  }
+  
+  .widget-expanded.active {
+    transform: translateX(0) scale(1);
+  }
+  
+  .widget-expanded::before {
+    left: 20px;
+  }
+  
+  .toast-container {
+    width: 100%;
+    right: 0;
+    padding: 0 10px;
+    align-items: center;
+  }
+  
+  .toast {
+    width: 100%;
+    max-width: 320px;
+  }
+}
+
+/* Phone specific optimizations */
+@media (max-width: 576px) {
+  /* General text size adjustments */
+  body {
+    font-size: 14px;
+  }
+  
+  header {
+    padding: 20px 10px;
+  }
+  
+  header h1 {
+    font-size: 1.8rem;
+  }
+  
+  header p {
+    font-size: 0.9rem;
+    padding: 5px 10px;
+  }
+  
+  /* Adjust container paddings */
+  .container {
+    padding: 15px 10px;
+  }
+  
+  /* Improve button touch targets */
+  .btn {
+    padding: 12px 15px;
+    font-size: 0.85rem;
+    min-height: 44px; /* Better touch target */
+  }
+  
+  /* Optimize seat layout */
+  .seat-row {
+    justify-content: center;
+  }
+  
+  .seat {
+    width: 36px;
+    height: 36px;
+    margin: 0 3px;
+    font-size: 0.7rem;
+    /* Minimum touch target size recommended by WCAG */
+    min-width: 36px;
+    min-height: 36px;
+  }
+  
+  .door {
+    width: 70px;
+    font-size: 0.7rem;
+  }
+  
+  /* Fix modal padding for small screens */
+  .modal-content {
+    padding: 20px 15px;
+    margin: 10% auto 5%;
+    width: 95%;
+  }
+  
+  /* Improve form interaction on mobile */
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 12px;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+  
+  /* Better mobile buttons layout */
+  .buttons-container {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+  
+  .buttons-container .btn {
+    width: 100%;
+  }
+  
+  /* Fixed modal header and close button */
+  .close {
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    font-size: 24px;
+  }
+  
+  /* Improve traffic widget on small screens */
+  .traffic-content {
+    width: 100%;
+  }
+  
+  /* Fixed bottom navigation for mobile */
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: white;
+    padding: 10px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    justify-content: space-around;
+  }
+  
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.7rem;
+    color: var(--gray-color);
+  }
+  
+  .mobile-nav-item i {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+  }
+  
+  .mobile-nav-item.active {
+    color: var(--primary-color);
+  }
+  
+  /* Ensure content doesn't hide under the bottom nav */
+  body {
+    padding-bottom: 70px;
+  }
+  
+  /* Fix widget overflow on small screens */
+  .widget-expanded {
+    position: fixed;
+    top: auto;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.8);
+    width: 90%;
+    max-width: 300px;
+  }
+  
+  .widget-expanded.active {
+    transform: translateX(-50%) scale(1);
+  }
+  
+  .widget-expanded::before {
+    left: 50%;
+  }
+  
+  /* Adjust map height for better mobile viewing */
+  #map {
+    height: 300px;
+  }
+  
+  /* Optimize toast positioning for mobile */
+  .toast-container {
+    bottom: 80px; /* Above the bottom nav */
+  }
+  
+  /* Optimize permission dialog for mobile */
+  .permission-dialog {
+    width: 95%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .permission-dialog-header {
+    padding: 15px;
+  }
+  
+  .permission-dialog-header h3 {
+    font-size: 1.1rem;
+  }
+  
+  .permission-dialog-body {
+    padding: 15px;
+  }
+  
+  .permission-dialog-footer {
+    padding: 15px;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .permission-dialog-footer .btn {
+    width: 100%;
+  }
+  
+  /* Make route options more mobile friendly */
+  .route-option {
+    padding: 10px;
+  }
+  
+  .route-time {
+    font-size: 1rem;
+  }
+  
+  .route-details {
+    font-size: 0.8rem;
+  }
+  
+  /* More readable route data on mobile */
+  .route-data-indicator {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+  }
+  
+  .route-data-indicator .update-time {
+    margin-left: 0;
+    margin-top: 5px;
+    width: 100%;
+  }
+  
+  /* Better mobile bookins list layout */
+  .booked-seats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  
+  .booked-seat-item {
+    padding: 10px 5px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Extra small phones */
+@media (max-width: 360px) {
+  header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .btn {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+  
+  .seat {
+    width: 32px;
+    height: 32px;
+    margin: 0 2px;
+    font-size: 0.65rem;
+  }
+  
+  .driver-seat {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .door {
+    width: 60px;
+  }
+  
+  .legend-item {
+    font-size: 0.7rem;
+  }
+  
+  /* Ensure modal is visible on very small screens */
+  .modal-content {
+    padding: 15px 10px;
+  }
+  
+  .close {
+    top: 5px;
+    right: 5px;
+  }
+}
+
+/* Very high resolution displays */
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1320px;
+  }
+  
+  header h1 {
+    font-size: 3.2rem;
+  }
+  
+  .seat {
+    width: 45px;
+    height: 45px;
+    font-size: 0.9rem;
+  }
+  
+  .driver-seat {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+/* Key responsive improvements for form elements */
+input, select, button, textarea {
+  max-width: 100%;
+}
+
+/* Fix for iOS input zoom */
+@media screen and (-webkit-min-device-pixel-ratio: 0) { 
+  select,
+  textarea,
+  input {
+    font-size: 16px !important;
+  }
+}
+
+/* Improve touch areas for interactive elements */
+.widget-btn,
+.mini-btn,
+.location-btn,
+.close,
+.toast-close {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Portrait orientation specific styles */
+@media (max-width: 576px) and (orientation: portrait) {
+  .passenger-section {
+    gap: 5px;
+  }
+  
+  /* Optimize for smaller screens in portrait */
+  .seat {
+    width: 34px;
+    height: 34px;
+    margin: 0 2px;
+  }
+}
+
+/* Landscape orientation specific styles */
+@media (max-width: 768px) and (orientation: landscape) {
+  /* Adjust modal position for landscape */
+  .modal-content {
+    margin: 2% auto;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  
+  /* Better seat layout for landscape */
+  .passenger-section {
+    max-width: 80%;
+  }
+  
+  /* Fix bottom nav for landscape */
+  .mobile-bottom-nav {
+    padding: 5px;
+  }
+  
+  body {
+    padding-bottom: 50px;
+  }
+  
+  /* Adjust toast positioning */
+  .toast-container {
+    bottom: 60px;
+  }
+}
+
+/* Action buttons container for horizontal alignment */
+.action-button-container {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.action-button {
+  flex: 1;
+  padding: 12px 15px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-md);
+  border: none;
+  cursor: pointer;
+  color: white;
+  max-width: 180px;
+}
+
+.action-button i {
+  margin-right: 8px;
+  font-size: 1rem;
+}
+
+.action-button:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.action-button:active {
+  transform: translateY(-2px);
+}
+
+#book-btn {
+  background: var(--gradient-primary);
+}
+
+#book-btn:hover {
+  background: var(--primary-color);
+}
+
+#book-btn:disabled {
+  background: var(--gray-color);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: var(--shadow-sm);
+}
+
+#withdraw-btn {
+  background: linear-gradient(135deg, var(--warning-color), #f7b84b);
+}
+
+#withdraw-btn:hover {
+  background: var(--warning-color);
+}
+
+#track-btn {
+  background: linear-gradient(135deg, #5e17eb, #7e3ff2);
+}
+
+#track-btn:hover {
+  background: #5e17eb;
+}
+
+/* Media query for small screens */
+@media (max-width: 768px) {
+  .action-button-container {
+    flex-direction: row;
+    gap: 10px;
+  }
+  
+  .action-button {
+    font-size: 0.75rem;
+    padding: 10px;
+  }
+  
+  .action-button i {
+    margin-right: 5px;
+  }
+}
+
+/* Passenger counter styles */
+.passenger-counter {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+    padding: 10px;
+    background-color: var(--primary-light);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.passenger-counter i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-right: 10px;
+}
+
+#passenger-count {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-right: 10px;
+}
+
+.passenger-label {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Location sharing indicator */
+.location-sharing-indicator {
+    display: inline-flex;
+    align-items: center;
+    background-color: rgba(82, 196, 26, 0.1);
+    color: #52c41a;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 8px;
+    animation: pulse 2s infinite;
+}
+
+.location-sharing-indicator i {
+    margin-right: 4px;
+    font-size: 0.8rem;
+}
+
+/* Distance badge for passenger markers */
+.distance-badge {
+    display: inline-block;
+    background-color: #1a73e8;
+    color: white;
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-top: 4px;
+}
+
+/* Real-time information panel */
+.real-time-info-panel {
+    margin-top: 15px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.bus-info-panel {
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.bus-info-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 15px;
+    border-radius: 10px 10px 0 0;
+}
+
+.bus-info-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+}
+
+.bus-info-details {
+    padding: 15px;
+}
+
+.bus-info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.bus-info-row:last-child {
+    border-bottom: none;
+}
+
+.bus-info-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.bus-info-value {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+/* Animation for data updates */
+.data-update {
+    animation: highlight-data 1.5s ease;
+}
+
+@keyframes highlight-data {
+    0% {
+        background-color: rgba(26, 115, 232, 0.1);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* Accuracy badge styling */
+.accuracy-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    margin-left: 8px;
+}
+
+.accuracy-badge.high {
+    background-color: var(--secondary-light);
+    color: var(--secondary-color);
+}
+
+.accuracy-badge.medium {
+    background-color: var(--warning-light);
+    color: var(--warning-color);
+}
+
+.accuracy-badge.low {
+    background-color: var(--danger-light);
+    color: var(--danger-color);
 }
