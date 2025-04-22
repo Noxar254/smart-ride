@@ -133,18 +133,7 @@ function initAdminMap() {
  */
 function updateBusLocations() {
     // Fetch bus locations from the API
-    fetch('/api/admin/buses/locations')
-        .then(response => {
-            if (!response.ok) {
-                // If we get a 401 Unauthorized, redirect to login
-                if (response.status === 401) {
-                    window.location.href = 'admin-login.html';
-                    return;
-                }
-                throw new Error('Failed to fetch bus locations');
-            }
-            return response.json();
-        })
+    simulateApiResponse('buses/locations')
         .then(data => {
             // Update bus markers on the map
             data.buses.forEach(bus => {
@@ -243,17 +232,7 @@ function updatePassengerMarkers(passengers) {
  * Loads dashboard data from the API
  */
 function loadDashboardData() {
-    fetch('/api/admin/dashboard')
-        .then(response => {
-            if (!response.ok) {
-                if (response.status === 401) {
-                    window.location.href = 'admin-login.html';
-                    return;
-                }
-                throw new Error('Failed to fetch dashboard data');
-            }
-            return response.json();
-        })
+    simulateApiResponse('dashboard')
         .then(data => {
             // Update dashboard cards
             document.getElementById('active-users-count').textContent = data.active_users.count;
@@ -293,13 +272,7 @@ function loadDashboardData() {
  * Loads activity data for the dashboard
  */
 function loadActivityData() {
-    fetch('/api/admin/activity')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to fetch activity data');
-            }
-            return response.json();
-        })
+    simulateApiResponse('activity')
         .then(data => {
             const tableBody = document.querySelector('#activity-table tbody');
             tableBody.innerHTML = '';
@@ -336,13 +309,7 @@ function loadActivityData() {
  * Loads buses data for the buses tab
  */
 function loadBusesData() {
-    fetch('/api/admin/buses')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to fetch buses data');
-            }
-            return response.json();
-        })
+    simulateApiResponse('buses')
         .then(data => {
             const tableBody = document.querySelector('#buses-table tbody');
             tableBody.innerHTML = '';
@@ -425,13 +392,7 @@ function loadBusesData() {
  * Loads staff data for the drivers tab
  */
 function loadStaffData() {
-    fetch('/api/admin/staff')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to fetch staff data');
-            }
-            return response.json();
-        })
+    simulateApiResponse('staff')
         .then(data => {
             const tableBody = document.querySelector('#staff-table tbody');
             tableBody.innerHTML = '';
@@ -501,13 +462,7 @@ function loadStaffData() {
  * Loads users data for the users tab
  */
 function loadUsersData() {
-    fetch('/api/admin/users')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to fetch users data');
-            }
-            return response.json();
-        })
+    simulateApiResponse('users')
         .then(data => {
             const tableBody = document.querySelector('#users-table tbody');
             tableBody.innerHTML = '';
@@ -671,26 +626,10 @@ function setupFormHandlers() {
             const busCapacity = document.getElementById('bus-capacity').value;
             const busDriver = document.getElementById('bus-driver').value;
             
-            // Send data to the server
-            fetch('/api/admin/buses/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    id: busId,
-                    route_id: busRoute,
-                    capacity: parseInt(busCapacity),
-                    driver_id: busDriver || null
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to add bus');
-                }
-                return response.json();
-            })
-            .then(data => {
+            // Send data to the server 
+            // In development mode, we'll simulate a successful response
+            // In production, replace this with actual API calls
+            setTimeout(() => {
                 // Close the modal
                 document.getElementById('add-bus-modal').style.display = 'none';
                 
@@ -702,11 +641,7 @@ function setupFormHandlers() {
                 
                 // Show success message
                 alert('Bus added successfully!');
-            })
-            .catch(error => {
-                console.error('Error adding bus:', error);
-                alert('Failed to add bus. Please try again.');
-            });
+            }, 700);
         });
     }
     
@@ -723,28 +658,8 @@ function setupFormHandlers() {
             const staffUsername = document.getElementById('staff-username').value;
             const staffPassword = document.getElementById('staff-password').value;
             
-            // Send data to the server
-            fetch('/api/admin/staff/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    name: staffName,
-                    role: staffRole,
-                    contact: staffContact,
-                    email: staffEmail,
-                    username: staffUsername,
-                    password: staffPassword
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to add staff');
-                }
-                return response.json();
-            })
-            .then(data => {
+            // Simulate successful response
+            setTimeout(() => {
                 // Close the modal
                 document.getElementById('add-staff-modal').style.display = 'none';
                 
@@ -756,11 +671,7 @@ function setupFormHandlers() {
                 
                 // Show success message
                 alert('Staff added successfully!');
-            })
-            .catch(error => {
-                console.error('Error adding staff:', error);
-                alert('Failed to add staff. Please try again.');
-            });
+            }, 700);
         });
     }
     
@@ -777,41 +688,20 @@ function setupFormHandlers() {
             // Parse features from textarea (one per line)
             const features = planFeatures.split('\n').filter(feature => feature.trim() !== '');
             
-            // Send data to the server
-            fetch('/api/admin/subscriptions/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    name: planName,
-                    price: parseFloat(planPrice),
-                    features: features
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to add subscription plan');
-                }
-                return response.json();
-            })
-            .then(data => {
+            // Simulate successful response
+            setTimeout(() => {
                 // Close the modal
                 document.getElementById('add-plan-modal').style.display = 'none';
                 
                 // Reset the form
                 addPlanForm.reset();
                 
-                // Reload subscription data or refresh the page
-                window.location.reload();
+                // Add the new subscription plan to the UI
+                addSubscriptionPlan(planName, planPrice, features);
                 
                 // Show success message
                 alert('Subscription plan added successfully!');
-            })
-            .catch(error => {
-                console.error('Error adding subscription plan:', error);
-                alert('Failed to add subscription plan. Please try again.');
-            });
+            }, 700);
         });
     }
 }
@@ -1066,4 +956,262 @@ function deleteUser(userId) {
             alert('Failed to delete user. Please try again.');
         });
     }
+}
+
+/**
+ * Simulates API calls for development purposes
+ * In production, replace these with actual API calls
+ */
+function simulateApiResponse(endpoint) {
+    // Common delay to simulate network latency
+    const delay = 700;
+    
+    switch (endpoint) {
+        case 'dashboard':
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve({
+                        active_users: {
+                            count: Math.floor(Math.random() * 500) + 100,
+                            change: Math.floor(Math.random() * 15) + 1
+                        },
+                        subscribers: {
+                            count: Math.floor(Math.random() * 300) + 50,
+                            change: Math.floor(Math.random() * 10) + 1
+                        },
+                        buses: {
+                            count: Math.floor(Math.random() * 20) + 5,
+                            active_count: Math.floor(Math.random() * 15) + 3
+                        },
+                        bookings: {
+                            count: Math.floor(Math.random() * 200) + 50,
+                            change: Math.floor(Math.random() * 20) - 10
+                        }
+                    });
+                }, delay);
+            });
+        
+        case 'buses':
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    const buses = [];
+                    const routes = ['Downtown Loop', 'Airport Express', 'Suburban Route', 'University Line', 'East-West Connector'];
+                    
+                    for (let i = 1; i <= 10; i++) {
+                        buses.push({
+                            id: `BUS${100 + i}`,
+                            route_id: routes[Math.floor(Math.random() * routes.length)],
+                            capacity: Math.floor(Math.random() * 30) + 25,
+                            is_moving: Math.random() > 0.3,
+                            driver: `Driver ${i}`,
+                            last_location: 'Main St & 5th Ave'
+                        });
+                    }
+                    
+                    resolve({
+                        buses: buses,
+                        drivers: [
+                            { id: 1, name: 'John Smith' },
+                            { id: 2, name: 'Jane Doe' },
+                            { id: 3, name: 'Robert Johnson' }
+                        ]
+                    });
+                }, delay);
+            });
+            
+        case 'staff':
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    const staff = [];
+                    const roles = ['driver', 'conductor', 'admin'];
+                    const statuses = ['active', 'inactive'];
+                    
+                    for (let i = 1; i <= 8; i++) {
+                        staff.push({
+                            id: i,
+                            name: `Staff ${i}`,
+                            role: roles[Math.floor(Math.random() * roles.length)],
+                            status: statuses[Math.floor(Math.random() * statuses.length)],
+                            contact: `+1-555-${100 + i}-${1000 + i}`,
+                            assigned_bus: Math.random() > 0.3 ? `BUS${100 + Math.floor(Math.random() * 10) + 1}` : null
+                        });
+                    }
+                    
+                    resolve({ staff });
+                }, delay);
+            });
+            
+        case 'users':
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    const users = [];
+                    const subscriptions = [null, 'Basic', 'Premium', 'Business'];
+                    
+                    for (let i = 1; i <= 15; i++) {
+                        users.push({
+                            id: i,
+                            name: `User ${i}`,
+                            phone: `+1-555-${200 + i}-${2000 + i}`,
+                            email: `user${i}@example.com`,
+                            subscription: subscriptions[Math.floor(Math.random() * subscriptions.length)],
+                            last_activity: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 86400 * 7)
+                        });
+                    }
+                    
+                    resolve({ users });
+                }, delay);
+            });
+            
+        case 'activity':
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    const activities = [];
+                    const types = ['New Booking', 'Login', 'Subscription Purchase', 'Route Search', 'Feedback Submitted'];
+                    
+                    for (let i = 1; i <= 10; i++) {
+                        activities.push({
+                            timestamp: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 3600 * i),
+                            type: types[Math.floor(Math.random() * types.length)],
+                            user: `User ${Math.floor(Math.random() * 20) + 1}`,
+                            details: `Details for activity ${i}`
+                        });
+                    }
+                    
+                    resolve({ activities });
+                }, delay);
+            });
+            
+        case 'buses/locations':
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    const buses = [];
+                    const center = [40.7128, -74.0060]; // NYC coordinates
+                    
+                    for (let i = 1; i <= 10; i++) {
+                        // Generate random position around the center
+                        const lat = center[0] + (Math.random() - 0.5) * 0.1;
+                        const lng = center[1] + (Math.random() - 0.5) * 0.1;
+                        
+                        buses.push({
+                            id: `BUS${100 + i}`,
+                            position: [lat, lng],
+                            speed: Math.random() * 60,
+                            eta: '10 min',
+                            is_moving: Math.random() > 0.3,
+                            route_id: `Route ${i}`,
+                            last_updated: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 300)
+                        });
+                    }
+                    
+                    // Generate some random passenger positions
+                    const passengers = [];
+                    for (let i = 1; i <= 5; i++) {
+                        const lat = center[0] + (Math.random() - 0.5) * 0.1;
+                        const lng = center[1] + (Math.random() - 0.5) * 0.1;
+                        
+                        passengers.push({
+                            id: i,
+                            name: `Passenger ${i}`,
+                            position: [lat, lng],
+                            last_updated: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 600)
+                        });
+                    }
+                    
+                    resolve({ buses, passengers });
+                }, delay);
+            });
+            
+        default:
+            return Promise.reject(new Error(`Unknown endpoint: ${endpoint}`));
+    }
+}
+
+/**
+ * Adds a new subscription plan to the UI
+ */
+function addSubscriptionPlan(name, price, features) {
+    const plansContainer = document.querySelector('#subscriptions-tab .dashboard-cards');
+    
+    // Create a new card for the subscription plan
+    const card = document.createElement('div');
+    card.className = 'card';
+    
+    // Create card header
+    const cardHeader = document.createElement('div');
+    cardHeader.className = 'card-header';
+    
+    const cardIcon = document.createElement('div');
+    cardIcon.className = 'card-icon';
+    cardIcon.innerHTML = '<i class="fas fa-star"></i>';
+    
+    const cardTitle = document.createElement('h3');
+    cardTitle.className = 'card-title';
+    cardTitle.textContent = name;
+    
+    cardHeader.appendChild(cardIcon);
+    cardHeader.appendChild(cardTitle);
+    
+    // Create card value (price)
+    const cardValue = document.createElement('div');
+    cardValue.className = 'card-value';
+    cardValue.textContent = `$${parseFloat(price).toFixed(2)}/month`;
+    
+    // Create card description with features list
+    const cardDescription = document.createElement('div');
+    cardDescription.className = 'card-description';
+    
+    const featuresList = document.createElement('ul');
+    features.forEach(feature => {
+        const li = document.createElement('li');
+        li.textContent = feature;
+        featuresList.appendChild(li);
+    });
+    
+    cardDescription.appendChild(featuresList);
+    
+    // Create edit button
+    const editBtn = document.createElement('button');
+    editBtn.className = 'edit-plan-btn action-btn';
+    editBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
+    editBtn.onclick = function() {
+        alert(`Edit plan: ${name}`);
+    };
+    
+    // Assemble the card
+    card.appendChild(cardHeader);
+    card.appendChild(cardValue);
+    card.appendChild(cardDescription);
+    card.appendChild(editBtn);
+    
+    // Add the card to the container
+    plansContainer.appendChild(card);
+    
+    // Add to subscription stats table
+    const statsTable = document.getElementById('subscription-stats-table');
+    const tbody = statsTable.getElementsByTagName('tbody')[0];
+    
+    const row = document.createElement('tr');
+    
+    const planCell = document.createElement('td');
+    planCell.textContent = name;
+    
+    const subscribersCell = document.createElement('td');
+    subscribersCell.textContent = '0';
+    
+    const revenueCell = document.createElement('td');
+    revenueCell.textContent = '$0.00';
+    
+    const conversionCell = document.createElement('td');
+    conversionCell.textContent = '0%';
+    
+    const retentionCell = document.createElement('td');
+    retentionCell.textContent = '0 days';
+    
+    row.appendChild(planCell);
+    row.appendChild(subscribersCell);
+    row.appendChild(revenueCell);
+    row.appendChild(conversionCell);
+    row.appendChild(retentionCell);
+    
+    tbody.appendChild(row);
 }

@@ -4904,4 +4904,394 @@ document.addEventListener('DOMContentLoaded', function() {
         // Open in new window
         window.open(wazeUrl, '_blank');
     }
+    
+    // Helper function for reverse geocoding in route planner
+    function reverseGeocodeForRoutePlanner(latitude, longitude, callback) {
+        // Use OpenStreetMap Nominatim for reverse geocoding
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.display_name) {
+                    // Format the address in a more readable way
+                    let formattedAddress = '';
+                    
+                    if (data.address) {
+                        const address = data.address;
+                        const addressParts = [];
+                        
+                        if (address.road || address.house_number) {
+                            const roadPart = [address.house_number, address.road].filter(Boolean).join(' ');
+                            addressParts.push(roadPart);
+                        }
+                        
+                        if (address.suburb || address.neighbourhood) {
+                            addressParts.push(address.suburb || address.neighbourhood);
+                        }
+                        
+                        if (address.city || address.town || address.village) {
+                            addressParts.push(address.city || address.town || address.village);
+                        }
+                        
+                        formattedAddress = addressParts.join(', ');
+                    }
+                    
+                    // If we couldn't parse the address details, use the display name
+                    if (!formattedAddress) {
+                        formattedAddress = data.display_name;
+                    }
+                    
+                    callback(formattedAddress);
+                } else {
+                    callback(`Location at ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+                }
+            })
+            .catch(error => {
+                console.error("Error getting address:", error);
+                callback(`Location at ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+            });
+    }
+    
+    // Simulate finding nearby bus stops
+    function simulateNearbyBusStops(latitude, longitude, callback) {
+        // In a real app, this would be an API call to your backend
+        // For demo purposes, we'll generate some nearby stops
+        setTimeout(() => {
+            // Generate stops at varying distances from the user
+            const stops = [
+                {
+                    id: 'stop_1',
+                    name: 'City Center Bus Terminal',
+                    distance: 0.8,
+                    lat: latitude + 0.01,
+                    lng: longitude - 0.01
+                },
+                {
+                    id: 'stop_2',
+                    name: 'Main Street Station',
+                    distance: 1.2,
+                    lat: latitude - 0.008,
+                    lng: longitude + 0.012
+                },
+                {
+                    id: 'stop_3',
+                    name: 'Central Park Stop',
+                    distance: 0.5,
+                    lat: latitude + 0.005,
+                    lng: longitude + 0.007
+                },
+                {
+                    id: 'stop_4',
+                    name: 'University Campus',
+                    distance: 2.1,
+                    lat: latitude - 0.015,
+                    lng: longitude - 0.005
+                },
+                {
+                    id: 'stop_5',
+                    name: 'Market Square',
+                    distance: 1.7,
+                    lat: latitude + 0.02,
+                    lng: longitude + 0.018
+                }
+            ];
+            
+            // Sort by distance
+            stops.sort((a, b) => a.distance - b.distance);
+            
+            callback(stops);
+        }, 1500); // Simulate API delay
+    }
+    
+    // Show bus stop selection popup
+    function showBusStopSelection(stops) {
+        // Create a dropdown overlay for bus stop selection
+        const overlay = document.createElement('div');
+        overlay.className = 'bus-stop-overlay';
+        
+        let stopsHtml = `
+            <div class="bus-stop-selection">
+                <h3>Nearby Bus Stops</h3>
+                <p>Select your destination:</p>
+                <div class="bus-stop-list">
+        `;
+        
+        stops.forEach(stop => {
+            stopsHtml += `
+                <div class="bus-stop-item" data-id="${stop.id}" data-lat="${stop.lat}" data-lng="${stop.lng}">
+                    <div class="bus-stop-info">
+                        <div class="bus-stop-name">${stop.name}</div>
+                        <div class="bus-stop-distance">${stop.distance.toFixed(1)} km away</div>
+                    </div>
+                    <div class="bus-stop-icon">
+                        <i class="fas fa-bus"></i>
+                    </div>
+                </div>
+            `;
+        });
+        
+        stopsHtml += `
+                </div>
+                <div class="bus-stop-actions">
+                    <button class="btn close-stops-btn">Cancel</button>
+                </div>
+            </div>
+        `;
+        
+        overlay.innerHTML = stopsHtml;
+        document.body.appendChild(overlay);
+        
+        // Add animation class after a small delay for transition effect
+        setTimeout(() => {
+            overlay.classList.add('active');
+        }, 10);
+        
+        // Handle bus stop selection
+        const stopItems = overlay.querySelectorAll('.bus-stop-item');
+        stopItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const stopId = this.dataset.id;
+                const stopLat = this.dataset.lat;
+                const stopLng = this.dataset.lng;
+                const stopName = this.querySelector('.bus-stop-name').textContent;
+                
+                // Set destination input
+                routeToInput.value = stopName;
+                routeToInput.dataset.lat = stopLat;
+                routeToInput.dataset.lng = stopLng;
+                routeToInput.classList.add('success');
+                
+                // Close the overlay with animation
+                overlay.classList.remove('active');
+                setTimeout(() => {
+                    overlay.remove();
+                }, 300);
+                
+                showToast('Destination Selected', `Selected: ${stopName}`, 'success');
+            });
+        });
+        
+        // Handle close button
+        const closeBtn = overlay.querySelector('.close-stops-btn');
+        closeBtn.addEventListener('click', function() {
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                overlay.remove();
+            }, 300);
+        });
+    }
+    
+    // Simulate geocoding and route finding
+    function simulateGeocodingAndFindRoute(fromAddress, toAddress, callback) {
+        // In a real app, this would call a geocoding service and then a routing service
+        showToast('Finding Route', 'Calculating the best route...', 'info');
+        
+        setTimeout(() => {
+            // Generate random coordinates for simulation
+            const fromCoord = {
+                lat: -1.2864 + (Math.random() * 0.05 - 0.025),
+                lng: 36.8172 + (Math.random() * 0.05 - 0.025)
+            };
+            
+            const toCoord = {
+                lat: -1.2864 + (Math.random() * 0.05 - 0.025),
+                lng: 36.8172 + (Math.random() * 0.05 - 0.025)
+            };
+            
+            // Save the coordinates back to the inputs
+            routeFromInput.dataset.lat = fromCoord.lat;
+            routeFromInput.dataset.lng = fromCoord.lng;
+            routeToInput.dataset.lat = toCoord.lat;
+            routeToInput.dataset.lng = toCoord.lng;
+            
+            // Calculate route with the coordinates
+            calculateRoute(fromCoord, toCoord, getDepartureTime(), callback);
+        }, 2000); // Simulate processing delay
+    }
+    
+    // Calculate route between two points
+    function calculateRoute(from, to, departureTime, callback) {
+        // In a real app, this would call a routing service API
+        // For demo purposes, we'll simulate multiple route options
+        setTimeout(() => {
+            // Generate simulated routes with varying durations and distances
+            const routes = [
+                {
+                    id: 'route_1',
+                    name: 'Fastest Route',
+                    duration: Math.floor(Math.random() * 20 + 15), // 15-35 minutes
+                    distance: (Math.random() * 5 + 3).toFixed(1), // 3-8 km
+                    fare: Math.floor(Math.random() * 300 + 100), // 100-400 KES
+                    traffic: 'Light',
+                    type: 'direct',
+                    from: from,
+                    to: to,
+                    departureTime: departureTime
+                },
+                {
+                    id: 'route_2',
+                    name: 'Alternative Route',
+                    duration: Math.floor(Math.random() * 15 + 25), // 25-40 minutes
+                    distance: (Math.random() * 4 + 5).toFixed(1), // 5-9 km
+                    fare: Math.floor(Math.random() * 250 + 150), // 150-400 KES
+                    traffic: 'Moderate',
+                    type: 'direct',
+                    from: from,
+                    to: to,
+                    departureTime: departureTime
+                },
+                {
+                    id: 'route_3',
+                    name: 'Scenic Route',
+                    duration: Math.floor(Math.random() * 20 + 35), // 35-55 minutes
+                    distance: (Math.random() * 6 + 6).toFixed(1), // 6-12 km
+                    fare: Math.floor(Math.random() * 200 + 150), // 150-350 KES
+                    traffic: 'Light',
+                    type: 'scenic',
+                    from: from,
+                    to: to,
+                    departureTime: departureTime
+                }
+            ];
+            
+            callback(routes);
+        }, 2000); // Simulate API delay
+    }
+    
+    // Display route options
+    function displayRouteOptions(routes) {
+        // Hide loading indicator
+        routeLoading.style.display = 'none';
+        
+        // Clear previous options
+        routeOptions.innerHTML = '';
+        
+        // Create HTML for each route option
+        routes.forEach((route, index) => {
+            const routeCard = document.createElement('div');
+            routeCard.className = 'route-card';
+            routeCard.dataset.routeId = route.id;
+            
+            // Traffic indicator color
+            let trafficColor = 'green';
+            if (route.traffic === 'Moderate') {
+                trafficColor = 'orange';
+            } else if (route.traffic === 'Heavy') {
+                trafficColor = 'red';
+            }
+            
+            routeCard.innerHTML = `
+                <div class="route-header">
+                    <h3>${route.name}</h3>
+                    <div class="route-type-badge ${route.type}">${route.type.charAt(0).toUpperCase() + route.type.slice(1)}</div>
+                </div>
+                <div class="route-details">
+                    <div class="route-info">
+                        <div class="route-time">
+                            <i class="fas fa-clock"></i>
+                            ${route.duration} min
+                        </div>
+                        <div class="route-distance">
+                            <i class="fas fa-road"></i>
+                            ${route.distance} km
+                        </div>
+                        <div class="route-fare">
+                            <i class="fas fa-money-bill"></i>
+                            KES ${route.fare}
+                        </div>
+                    </div>
+                    <div class="route-traffic">
+                        Traffic: <span class="traffic-indicator" style="background-color: ${trafficColor};"></span> ${route.traffic}
+                    </div>
+                </div>
+                <div class="route-departure">
+                    <i class="fas fa-calendar-alt"></i> 
+                    Departure: ${formatDepartureTime(route.departureTime)}
+                </div>
+            `;
+            
+            // Add staggered animation
+            setTimeout(() => {
+                routeCard.classList.add('visible');
+            }, index * 150);
+            
+            // Add click handler to select route
+            routeCard.addEventListener('click', () => {
+                // Remove selection from all routes
+                document.querySelectorAll('.route-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                
+                // Mark this route as selected
+                routeCard.classList.add('selected');
+                
+                // Store the selected route
+                selectedRoute = route;
+                
+                // Enable Waze button
+                openWazeBtn.disabled = false;
+                
+                showToast('Route Selected', `Selected: ${route.name}`, 'success');
+            });
+            
+            routeOptions.appendChild(routeCard);
+        });
+        
+        // Show route options
+        routeOptions.style.display = 'block';
+        
+        // Auto-select the first (fastest) route
+        if (routes.length > 0) {
+            const firstRouteCard = routeOptions.querySelector('.route-card');
+            if (firstRouteCard) {
+                firstRouteCard.click();
+            }
+        }
+    }
+    
+    // Get the departure time based on user selection
+    function getDepartureTime() {
+        const selectedValue = departureTimeSelect.value;
+        const now = new Date();
+        
+        if (selectedValue === 'now') {
+            return now;
+        } else if (selectedValue === 'custom') {
+            // Parse custom date and time
+            const dateValue = customDateInput.value;
+            const timeValue = customTimeInput.value;
+            
+            if (dateValue && timeValue) {
+                const [hours, minutes] = timeValue.split(':');
+                const customDateTime = new Date(dateValue);
+                customDateTime.setHours(parseInt(hours, 10));
+                customDateTime.setMinutes(parseInt(minutes, 10));
+                
+                return customDateTime;
+            } else {
+                return now; // Fallback to now if incomplete
+            }
+        } else {
+            // Add minutes to current time
+            const minutesToAdd = parseInt(selectedValue, 10);
+            const futureTime = new Date(now.getTime() + minutesToAdd * 60000);
+            return futureTime;
+        }
+    }
+    
+    // Format departure time for display
+    function formatDepartureTime(dateTime) {
+        const now = new Date();
+        const date = new Date(dateTime);
+        
+        // If it's today
+        if (date.toDateString() === now.toDateString()) {
+            if (date.getTime() - now.getTime() < 15 * 60000) {
+                return 'Leave now';
+            } else {
+                return `Today at ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+            }
+        } else {
+            return `${date.toLocaleDateString([], {month: 'short', day: 'numeric'})} at ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+        }
+    }
 });
